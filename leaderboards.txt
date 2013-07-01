@@ -1,0 +1,9 @@
+Name		|     Score    |    Words
+---------------------------------------------
+Harry			2000		5
+Dude2			1800		2
+Deuce			1500		7
+Deuce			1200		6
+Andy			1000		1
+Deuce			1000		5
+Deuce			800		4

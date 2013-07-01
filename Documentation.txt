@@ -1,0 +1,658 @@
+     Hangman
+
+     ------
+      |     |
+      |     0
+      |    /|\ 
+      |     |
+      |    / \
+      |
+      |
+______________
+
+
+HANGMAN
+
+A simple game of hangman where user tries to guess a word
+
+Abstract:
+
+Total of 6 guesses to user: 
+1st Miss: Head
+
+       ------
+      |     |
+      |     0
+      |     
+      |     
+      |    
+      |
+      |
+______________
+
+
+2nd Miss: Body
+       ------
+      |     |
+      |     0
+      |     | 
+      |     |
+      |    
+      |
+      |
+______________
+
+
+3rd Miss: Leg1
+
+
+       ------
+      |     |
+      |     0
+      |     | 
+      |     |
+      |    / 
+      |
+      |
+______________
+
+
+4th Miss: Leg2
+
+       ------
+      |     |
+      |     0
+      |     |
+      |     |
+      |    / \ 
+      |
+      |
+______________
+
+
+5th Miss: Arm1
+
+
+       ------
+      |     |
+      |     0
+      |    /|
+      |     |
+      |    / \
+      |
+      |
+______________
+
+
+6th Miss: Arm2 Death
+
+       ------
+      |     |
+      |     0
+      |    /|\  You lose
+      |     |
+      |    / \
+      |
+      |
+______________
+
+
+Guesses remaining will be displayed
+
+Categories: People, Movies, Words,? 
+
+
+Award the user points for each word guessed based on number of misses:
+0 Misses: 1000 points
+1 Miss:   900 points
+2 Misses: 750 points
+3 Misses: 600 points
+4 Misses: 500 points
+5 Misses: 300 points
+6 Misses: 0 points
+
+Give user 3 lives.
+
+Track number of wins: new life awarded after every 5 wins.
+
+
+Leaderboards: import current leaderboard. Attempt to add new name to it (7 names allowed).
+Total of 7 names on the leaderboard
+filter name for simple cursing.
+
+Leaderboard structure:
+linked list with maximum of 7 names
+pointers to strings that include name and score.
+Insert will attempt to insert new name in sorted location, return false if failed
+Delete will attempt to remove name from list, return true if completed, return false if array is empty or
+name does not exist
+
+Versus
+1 v 1
+First player enters in a word. Second player tries to guess it with 6 misses. If P2 gets the word right
+he wins. Else, player 1 wins.
+
+
+Options: Play Game
+	 Add new word
+		First, category
+			New Category	
+				Enter category name
+				Enter word
+			Existing Category
+				numbered list
+					Will correspond to numbers in category array.
+				add word
+					user types in word, simple filtering for cursing
+	View Leaderboards:
+		Loads the leaderboard text file and displays it.
+	Versus
+		A 1 v 1 game where one player types a word in and the other tries to guess it
+
+	Quit
+		Exits the game
+
+
+
+
+
+
+
+
+
+
+Coding:
+
+
+
+
+
+Name Structure:
+
+//Name.h
+ifndef NAME_H
+define NAME_H
+struct Name
+{
+string theName;
+string thePoints;
+string numWords;
+Name* nextName;
+};
+endif
+Leaderboard Structure
+
+//Leaderboard.h
+ifndef LEADERBOARD_H
+define LEADERBOARD_H
+
+#include "Name.h"
+
+public class Leaderboard
+{
+public:
+
+Leaderbord();
+//default constructor
+
+Leaderboard(const Leaderboard& leader);
+//copy constructor
+
+
+~Leaderboard();
+//destructor
+
+bool Insert(Name newName);
+//pre: none
+//post: returns true if name was added to leaderboard, false if not
+
+bool Delete(Name aName);
+//pre: none
+//post: returns true if aName was removed from leaderboard, false if not
+
+bool MakeEmpty();
+//pre: none
+//post: leaderboard is empty
+
+friend istream& operator >> (istream& fin, Leaderboard &leader1);
+//pre: input file is open and ready for use. Leaderboard data is properly sorted
+//post: leader1 contains leaderboard data from fin
+
+
+private:
+const int MAX_NAMES = 7;
+int numNames;
+
+Name* info = NULL;
+}
+endif;
+
+//Leaderboard.cpp
+#include <iostream>
+#include <string>
+using namespace sd;
+#include "Leaderboard.h"
+
+
+Leaderboard::Leaderboard()
+{
+	MAX_NAMES = 7;
+	numNames = 0;
+	info = NULL;
+}
+
+Leaderboard::Leaderboard(const Leaderboard& leader)
+{	//move through info
+	Name* tempPtr = leader.info;
+	if (tempPtr == NULL)
+	{
+		info = NULL;
+		return;
+
+	//create a Temp Name
+
+	Name *temp;
+	temp = new Name;
+	temp.theName = tempPtr->theName;
+	temp.thePoints = tempPtr->thePoints;
+	temp.numWords = tempPtr->numWords;
+	temp.next = tempPtr->next;
+	tempPtr = tempPtr->next;
+	info = temp;
+	while (tempPtr != NULL)
+	{
+		temp = temp->next;
+		temp.theName = tempPtr->theName;
+        	temp.thePoints = tempPtr->thePoints;
+		temp.numWords = tempPtr->numWords;
+		temp.next = tempPtr->next;
+		tempPtr = tempPtr->next;
+	}
+
+}//end of copy constructor
+
+Leaderboard::~Leaderboard()
+{
+	if (info = NULL)
+	return;
+
+	while (info->next != NULL)
+	{
+		Name* tempPtr = info;
+		info = info->next;
+		delete tempPtr;
+	}
+	delete info;
+	return;
+}
+
+bool Leaderboard::Insert(Name newName)
+{
+//check for empty list
+	if (info == NULL)
+	{
+		Name* temp = new Name;
+		if (temp == NULL)
+			exit(0);
+		temp.theName = newName.theName;
+		temp.thePoints = newName.thePoints;
+		temp.numWords = newName.numWords;
+		temp.next = NULL;
+		info = temp;
+		numName++;
+		return true;
+	}
+
+		
+
+//check for first position
+	if (newName.thePoints > info->thePoints)
+	{
+		Name* temp = new Name;
+		if (temp == NULL)
+			exit(0);
+		temp.theName = newName.theName;
+		temp.thePoints = newName.thePoints;
+		temp.numWords = newName.numWords;
+		temp.next = info->next;
+		info = temp;
+		numNames++;
+//check for overpopulation
+		if (numNames > MAX_NAMES)
+		{
+			Name* killPtr = info;
+			while (killPtr->next != NULL)
+				killPtr = killPtr->next;
+			delete killPtr;
+			return true
+		}
+	}
+
+//check for single valued list
+	if (info->next == NULL)
+	{
+		
+		Name* temp = new Name;
+		if (temp == NULL)
+			exit(0);
+		temp.theName = newName.theName;
+		temp.thePoints = newName.thePoints;
+		temp.numWords = newName.numWords;
+		temp.next = NULL;
+		info->next = temp;
+		numNames++;
+		return true;
+	}
+
+//scan rest of list
+	Name* tempPtr = info;
+	while (tempPtr->next->next!=NULL && tempPtr->next->thePoints > newName.thePoints)
+		tempPtr = tempPtr->next;
+	
+		Name* temp = new Name;
+		if (temp == NULL)
+			exit(0);
+		temp.theName = newName.theName;
+		temp.thePoints = newName.thePoints;
+		temp.numWords = newName.numWords;
+		temp.next = tempPtr->next->next;
+		tempPtr->next = temp;
+		numNames++;
+//check for overpopulation
+		if (numNames > MAX_NAMES)
+		{
+			Name* killPtr = info;
+			while (killPtr->next != NULL)
+				killPtr = killPtr->next;
+			delete killPtr;
+			return true
+		}
+
+
+
+
+}//end of Insert function
+
+bool Leaderboard::Delete(Name aName)
+{
+
+//check for empty list
+	if (info == NULL)
+		return false;
+
+//check for first item
+	if (info->theName == aName.theName && info->thePoints == aName.thePoints
+		&& info->numWords == aName.numWords)
+	Name* killPtr = info;
+	info = info->next;
+	delete killPtr;
+	numNames--;
+	return true;
+
+//scan rest of list
+	Name* tempPtr = info;
+	while  (tempPtr->next != NULL && tempPtr->next->theName != aName.theName && tempPtr->next->thePoints != aName.thePoints
+		&& tempPtr->next->numWords != aName.numWords)
+		tempPtr = tempPtr->next;
+
+	if (tempPtr->next == NULL)
+		return false;
+
+//else, we're sitting at the node before the one we wish to delete
+	Name* killPtr = tempPtr->next;
+	tempPtr->next = killPtr->next;
+	delete killPtr;
+	numNames--;
+	return true;
+
+}//end of Delete function
+
+bool Leaderboard::MakeEmpty()
+{
+//check for empty list
+	if (info == NULL)
+		return true;
+	
+	Name* killPtr = info;
+	while (killPtr != NULL)
+	{
+		info = info->next;
+		delete killPtr;
+		numNames--;
+		killPtr = info;
+	}
+	return true;
+
+}
+
+istream& operator >> (istream& fin, Leaderboard &leader1)
+{
+	//declare variables
+	string name, points, wordAmt;
+	Name* tempName = new Name;
+	Name* currentPtr;
+
+	//get input
+	while (isspace(fin.peek()))
+		fin.ignore();
+	fin >> name;
+	fin >> points;
+	fin >> wordAmt;
+	tempName->theName = name;
+	tempName->thePoints = points;
+	tempName->numWords = wordAmt;
+	tempName->next = NULL;
+
+	//set first one to info
+	leader1.info = tempName;
+	currentPtr = info;
+	while (!fin.fail())
+	{
+		tempName = new Name;
+		while (isspace(fin.peek()))
+			fin.ignore();
+		fin >> name;
+		fin >> points;
+		fin >> wordAmt;
+		tempName->theName = name;
+		tempName->thePoints = points;
+		tempName->numWords = wordAmt;
+		tempName->next = NULL;
+		currentPtr->next = tempName;
+		currentPtr = currentPtr->next;
+
+
+	}
+
+}//end of overloaded operator
+
+
+
+*************Driver**************************************
+
+//driver.cpp
+
+(example) string theWord = “hangman”
+
+#include <cctype>
+#include <fstream>
+#include <iostream>
+#include <string>
+using namespace std;
+#include "Leaderboard.h"
+#include "Name.h"
+
+string generateCurrentWord (string theWord);
+//pre: theWord is not an empty string
+//post: generates the underscored word that lacks characters a user will see
+
+string returnResults(char letter, string currentWord);
+//pre: currentWord contains underscores in places user has not uncovered
+//post: returns partial word that user sees
+
+void processChoice(int choice);
+//pre:
+//post:
+
+void viewLeaders();
+//pre: none
+//post: view current leaderboards
+
+int main()
+{
+//declare variables
+	int lives, numWords, score, userChoice;
+	bool userContinues = true;
+	ifstream fin;
+
+//load words
+	//not yet implemented
+	
+//process
+	do
+	{
+		showMenu();
+		cin >> userChoice;
+		processChoice(int userChoice, userContinues);
+
+	}while (userContinues);
+
+//display the word to the user
+	for (int i=0;i<currentWord.length()-1;i++)
+	{
+
+//place a space after each letter so the word is easy to read by users
+		cout << currentWord[i] << ' ';
+	}
+
+//example, if word is hangman, currentword is _a__a_, current word will be displayed as
+// _ a _ _ _ a _  which is easier to read and falls in line with traditional hangman
+
+	system("pause");
+	return 0;
+}
+
+void processChoice(int choice, bool &continue)
+{
+	//run whichever option user selected
+	//1: Play Game
+	//2: Play Versus
+	//3: View Leaderboards
+	//4: Add new word
+	//5: Quit
+
+	if (choice == 1)
+	{
+		cout << "Feature not yet implemented" << endl;
+		
+	}
+	else if (choice == 2)
+	{
+
+		cout<< "Feature not yet implemented" << endl;
+	}
+
+	else if (choice == 3)
+	{
+		viewLeaders();
+		return;
+	}
+	else if (choice == 4)
+	{
+		cout << "Feature not yet implemented" << endl;
+		return;
+	}
+
+	else if (choice == 5)
+	{
+		cout << "Thanks for playing!" << endl;
+		continue = false;
+		return;
+	}
+
+
+}//end processChoice
+
+void viewLeaders()
+{
+	ifstream fin;
+	fin.open("leaderboards.txt");
+	if (fin.fail())
+	{
+		cout << "Error opening leaderboards";
+		system("pause");
+		return;
+	}
+	
+	//simply print each character in the file, no need to do anything more
+	char printNext;
+	while (isspace(fin.peek()))
+		fin.ignore();
+	fin >> printNext;
+	cout >> printNext;
+	while(!fin.fail())
+	{
+		fin >> printNext;
+		cout >> printNext;
+	}
+	fin.close();
+	return;
+
+}
+
+
+//we want to generate the underscored (_) blank word that the user is trying to guess
+//it needs to be of the same length as the word, but with underscores instead of letters
+//example, if word is "hangman", we want the user to initially see "_ _ _ _ _ _ _"
+
+string generateCurrentWord(string theWord)
+{
+
+//start with an empty string
+	string currentWord = "";
+
+//simply step through the word, adding underscores to the new word for every spot
+	for (int i=0; i<theWord.length()-1;i++)
+		currentWord += '_';
+
+//return the new word to be displayed to user
+	return currentWord;
+}
+
+string returnResults(char letter, string currentWord)
+{
+
+	for (int i=0; i<theWord.length()-1;i++)
+		{
+			if (theWord[i] == letter)
+				currentWord[i]=letter;
+		}
+	return currentWord;
+}
+
+
+************************END OF DRIVER*************************
+
+
+
+
+	
+
+
+	
+////display the word to the user
+//	for (int i=0; i < currentWord.size()-1;i++)
+//	{
+//
+////place a space after each letter so the word is easy to read by users
+//		cout << currentWord[i] << ' ';
+//	}
+
+//example, if word is hangman, currentword is _a__a_, current word will be displayed as
+// _ a _ _ _ a _  which is easier to read and falls in line with traditional hangman
+
+		
+		
+
+
+
